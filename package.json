@@ -15,5 +15,8 @@
   },
   "devDependencies": {
     "typescript": "^2.8.3"
+  },
+  "scripts": {
+    "pre-publish": "yarn && rm -rf ./lib/* && yarn tsc && cp package.json README.md ./lib/ && cd ./lib && yarn pack"
   }
 }
