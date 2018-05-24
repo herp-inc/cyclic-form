@@ -1,0 +1,19 @@
+{
+  "name": "cyclic-form",
+  "version": "0.1.0",
+  "description": "A form component library built on the top of cycle-onionify",
+  "main": "index.js",
+  "typing": "index.d.ts",
+  "repository": "git@github.com:herp-inc/cyclic-form.git",
+  "author": "Ryota Kameoka <kameoka.ryota@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@cycle/dom": "^20.4.0",
+    "cycle-onionify": "^5.0.0",
+    "jazz-func": "^0.4.0",
+    "xstream": "^11.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^2.8.3"
+  }
+}
