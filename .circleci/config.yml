@@ -1,0 +1,16 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: node:10.1.0
+    working_directory: /workdir
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            yarn install
+      - run:
+          name: Build
+          command: |
+            yarn pre-publish
