@@ -28,9 +28,9 @@
   dependencies:
     xstream "10.x || 11.x"
 
-cycle-onionify@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/cycle-onionify/-/cycle-onionify-5.0.0.tgz#1b69156fa76690ed2ea93325ce9c52f9b0fa5ff9"
+cycle-onionify@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/cycle-onionify/-/cycle-onionify-5.1.0.tgz#3ff8bb53d50bcd66060beecfdba700df262d275c"
   dependencies:
     "@cycle/isolate" ">=3"
     "@cycle/run" "*"
@@ -123,8 +123,8 @@ typescript@^2.8.3:
   version "2.8.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.8.3.tgz#5d817f9b6f31bb871835f4edf0089f21abe6c170"
 
-"xstream@10.x || 11.x", xstream@11.x, xstream@>=10, xstream@^11.2.0:
-  version "11.2.0"
-  resolved "https://registry.yarnpkg.com/xstream/-/xstream-11.2.0.tgz#4acb83211fa2edcd890e36f7a7ed02caee2339b5"
+"xstream@10.x || 11.x", xstream@11.x, xstream@>=10, xstream@^11.3.0:
+  version "11.3.0"
+  resolved "https://registry.yarnpkg.com/xstream/-/xstream-11.3.0.tgz#a53dde178895bdc38f3dd5aaa5c9dd8b5864fa5a"
   dependencies:
     symbol-observable "1.2.0"

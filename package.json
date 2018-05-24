@@ -9,9 +9,9 @@
   "license": "MIT",
   "dependencies": {
     "@cycle/dom": "^20.4.0",
-    "cycle-onionify": "^5.0.0",
+    "cycle-onionify": "^5.1.0",
     "jazz-func": "^0.4.0",
-    "xstream": "^11.2.0"
+    "xstream": "^11.3.0"
   },
   "devDependencies": {
     "typescript": "^2.8.3"
