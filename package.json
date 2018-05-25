@@ -1,6 +1,6 @@
 {
   "name": "cyclic-form",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A form component library built on the top of cycle-onionify",
   "main": "index.js",
   "typing": "index.d.ts",
