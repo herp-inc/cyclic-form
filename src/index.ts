@@ -173,7 +173,7 @@ function totalIsolateVNode(node: VNode, scope: string): VNode {
     return node;
 }
 
-export function evolveC<Struct extends object>(transformations: Partial<{ [P in keyof Struct]: Endo<Struct[P]> }>): Endo<Struct> {
+function evolveC<Struct extends object>(transformations: Partial<{ [P in keyof Struct]: Endo<Struct[P]> }>): Endo<Struct> {
     return function (struct: Struct): Struct {
         const newStruct: any = Object.create(null);
 
