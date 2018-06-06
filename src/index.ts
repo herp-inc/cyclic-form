@@ -147,6 +147,7 @@ export function form<Decl extends FormDeclaration<any>>(fields: FieldsFor<Decl>)
 
 // copied from https://github.com/cyclejs/cyclejs/blob/6758f00d2004d9a5aee6e2c186b2b278e39fa4a8/dom/src/isolate.ts
 // couldn't be imported as it is originally used within map() function
+// modified a little bit to avoid a bug by sharing the same reference
 function totalIsolateVNode(node: VNode, scope: string): VNode {
     if (node.data && (node.data as any).isolate) {
         const isolateData = (node.data as any).isolate as string;
@@ -164,8 +165,7 @@ function totalIsolateVNode(node: VNode, scope: string): VNode {
     }
 
     // Insert up-to-date full scope in vnode.data.isolate, and also a key if needed
-    node.data = node.data || {};
-    (node.data as any).isolate = scope;
+    node.data = Object.assign({}, node.data || {}, { isolate: scope });
     if (typeof node.key === 'undefined') {
         node.key = SCOPE_PREFIX + scope;
     }
