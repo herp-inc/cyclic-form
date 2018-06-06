@@ -149,6 +149,8 @@ export function form<Decl extends FormDeclaration<any>>(fields: FieldsFor<Decl>)
 // couldn't be imported as it is originally used within map() function
 // modified a little bit to avoid a bug by sharing the same reference
 function totalIsolateVNode(node: VNode, scope: string): VNode {
+    node.sel += `.${scope}`;
+
     if (node.data && (node.data as any).isolate) {
         const isolateData = (node.data as any).isolate as string;
         const prevFullScopeNum = isolateData.replace(/(cycle|\-)/g, '');
