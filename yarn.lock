@@ -12,7 +12,7 @@
     snabbdom-selector "^3.0.0"
     xstream "11.x"
 
-"@cycle/isolate@>=3":
+"@cycle/isolate@>=3", "@cycle/isolate@^3.3.0":
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-3.3.0.tgz#f23c9dfe0ac604240addf915693c4e78fef2fd28"
 
