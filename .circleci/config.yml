@@ -11,6 +11,10 @@ jobs:
           command: |
             yarn install
       - run:
+          name: Run Prettier
+          command: |
+            yarn prettier:check
+      - run:
           name: Build
           command: |
             yarn pre-publish

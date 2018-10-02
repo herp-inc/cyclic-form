@@ -20,6 +20,8 @@
     "typescript": "^2.8.3"
   },
   "scripts": {
-    "pre-publish": "./bin/pre-publish.sh"
+    "pre-publish": "./bin/pre-publish.sh",
+    "prettier:check": "prettier --list-different src/**/*.ts",
+    "prettier:format": "prettier --write src/**/*.ts"
   }
 }
