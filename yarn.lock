@@ -162,14 +162,7 @@ typescript@^2.8.3:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.8.3.tgz#5d817f9b6f31bb871835f4edf0089f21abe6c170"
   integrity sha512-K7g15Bb6Ra4lKf7Iq2l/I5/En+hLIHmxWZGq3D4DIRNFxMNV6j2SHSvDOqs2tGd4UvD/fJvrwopzQXjLrT7Itw==
 
-"xstream@10.x || 11.x", xstream@11.x, xstream@^11.3.0:
-  version "11.3.0"
-  resolved "https://registry.yarnpkg.com/xstream/-/xstream-11.3.0.tgz#a53dde178895bdc38f3dd5aaa5c9dd8b5864fa5a"
-  integrity sha512-TCI3SRiqcB8XXbiHXAc53kkI9npanu2RqB4FBfbmM2vf035Sf7rBs+36OEt4Ve70Xx5mPuMaT0F/vpW+ix4bzw==
-  dependencies:
-    symbol-observable "1.2.0"
-
-xstream@>=11, xstream@^11.7.0:
+"xstream@10.x || 11.x", xstream@11.x, xstream@>=11, xstream@^11.7.0:
   version "11.7.0"
   resolved "https://registry.yarnpkg.com/xstream/-/xstream-11.7.0.tgz#6557e9710e1ab05ae28b6902af41745250d32e36"
   integrity sha512-wO3TXiQd2/1UZNVsixDIcQgAN6TU4sGH7qIXvs1CRp1kgtkpU8YTfyKt/z/Z1psqcGnR0cJJxHaCnBxtktLx9w==
