@@ -2,8 +2,8 @@ import { VNode } from '@cycle/dom';
 import { isolateSource } from '@cycle/dom/lib/cjs/isolate';
 import { SCOPE_PREFIX } from '@cycle/dom/lib/cjs/utils';
 import { Component, toIsolated } from '@cycle/isolate';
+import { Lens } from '@cycle/state';
 import { Endo, id } from 'jazz-func/endo';
-import { Lens } from 'cycle-onionify';
 import { MemoryStream, Stream } from 'xstream';
 
 import {
@@ -46,7 +46,7 @@ export function isolate<State extends object, Scope extends Lens<State, any> | k
     if (typeof scope === 'string') {
         return toIsolated(scope) as any;
     } else {
-        return toIsolated({ onion: scope }) as any;
+        return toIsolated({ state: scope }) as any;
     }
 }
 
@@ -55,7 +55,7 @@ export function form<Decl extends FormDeclaration<any>>(
 ): Component<Sources<Decl>, Sinks<Decl>> {
     return function Form({
         DOM,
-        onion,
+        state,
         renderer$,
         validators$ = Stream.of({}).remember(),
     }: Sources<Decl>): Sinks<Decl> {
@@ -78,7 +78,7 @@ export function form<Decl extends FormDeclaration<any>>(
         });
 
         const combined$: Stream<[Decl, FormRenderer<Decl>, ValidatorsFor<Decl>]> = Stream.combine(
-            onion.state$,
+            state.stream,
             renderer$,
             validators$,
         );
@@ -170,7 +170,7 @@ export function form<Decl extends FormDeclaration<any>>(
 
         return {
             DOM: vnode$,
-            onion: reducer$,
+            state: reducer$,
             submission$: DOM.select('form').events('submit', { preventDefault: true }),
         };
     };

@@ -1,6 +1,6 @@
 import { DOMSource, VNode } from '@cycle/dom';
 import { Component } from '@cycle/isolate';
-import { Lens, StateSource } from 'cycle-onionify';
+import { Lens, StateSource } from '@cycle/state';
 import { Endo } from 'jazz-func/endo';
 import { MemoryStream, Stream } from 'xstream';
 
@@ -11,7 +11,7 @@ import { MemoryStream, Stream } from 'xstream';
  */
 export type Sources<Decl extends FormDeclaration<any>> = {
     DOM: DOMSource;
-    onion: StateSource<Values<Decl>>;
+    state: StateSource<Values<Decl>>;
     renderer$: MemoryStream<FormRenderer<Decl>>;
     validators$?: MemoryStream<ValidatorsFor<Decl>>;
 };
@@ -21,7 +21,7 @@ export type Sources<Decl extends FormDeclaration<any>> = {
  */
 export type Sinks<Decl extends FormDeclaration<any>> = {
     DOM: MemoryStream<VNode>;
-    onion: Stream<Endo<Values<Decl>>>;
+    state: Stream<Endo<Values<Decl>>>;
     submission$: Stream<Event>;
 };
 
@@ -127,12 +127,12 @@ export type MetaData = {
 };
 
 /**
- * A type of a component obtained through onion-flavored isolation.
+ * A type of a component obtained through state isolation.
  * Defined in order to avoid returning `Component<any, any>`.
  */
 export type IsolatedForm<Parent, Child> = Component<
-    Omit<Sources<FormDeclaration<Child>>, 'onion'> & { onion: StateSource<Parent> },
-    Omit<Sinks<FormDeclaration<Child>>, 'onion'> & { onion: Stream<Endo<Parent>> }
+    Omit<Sources<FormDeclaration<Child>>, 'state'> & { state: StateSource<Parent> },
+    Omit<Sinks<FormDeclaration<Child>>, 'state'> & { state: Stream<Endo<Parent>> }
 >;
 
 /**
