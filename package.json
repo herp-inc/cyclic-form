@@ -11,7 +11,7 @@
   "dependencies": {
     "@cycle/dom": "^20.4.0",
     "@cycle/isolate": "^3.3.0",
-    "cycle-onionify": "^5.1.0",
+    "@cycle/state": "^1.0.0",
     "jazz-func": "^0.4.0",
     "xstream": "^11.3.0"
   },

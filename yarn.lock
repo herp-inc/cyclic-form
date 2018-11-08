@@ -13,17 +13,18 @@
     snabbdom-selector "^3.0.0"
     xstream "11.x"
 
-"@cycle/isolate@>=3", "@cycle/isolate@^3.3.0":
+"@cycle/isolate@^3.3.0":
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-3.3.0.tgz#f23c9dfe0ac604240addf915693c4e78fef2fd28"
   integrity sha512-WFbEhrS1+Wx7VrJtGnjE/TQ1GtSoxQi6mBcFgqh8CwFu9FRxbNk1QL5rrwel250m+zEcwRmxo+kUwtJSlj4DCA==
 
-"@cycle/run@*":
+"@cycle/isolate@^4.1.0":
   version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@cycle/run/-/run-4.1.0.tgz#b164a83792e85db3c184236f4b3800a4c9bf6f76"
-  integrity sha512-QkLW1CIgTnjR4rTMPs0Cx8NyzVJzlKthZdhbmVM8H7MXY1AdqU1ZCq8MSGd3WN5yvP+1Cyr39LVJ+ZtX4K5xkg==
+  resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-4.1.0.tgz#b40b5cc4e11f7ba36e03974dafba8749613f0e1d"
+  integrity sha512-nnuBqXZdak4fGeYWQFoXC4zmmTFYhIfArTKCpU5XmIgF4aqD0cQg02QBobczn86EJO7SpIuWUh7l8FF5IL4pNw==
   dependencies:
-    xstream "10.x || 11.x"
+    "@cycle/run" "^5.1.0"
+    xstream "^11.7.0"
 
 "@cycle/run@4.0.0":
   version "4.0.0"
@@ -32,14 +33,23 @@
   dependencies:
     xstream "10.x || 11.x"
 
-cycle-onionify@^5.1.0:
+"@cycle/run@^5.1.0":
   version "5.1.0"
-  resolved "https://registry.yarnpkg.com/cycle-onionify/-/cycle-onionify-5.1.0.tgz#3ff8bb53d50bcd66060beecfdba700df262d275c"
-  integrity sha512-tx/CCMRVFJWZIi6Lg402vG/K7tazLf2iaR07oyy/ybDwGhHDz+gGLXEJYE09y4WMBdLBjVX2vVCGp7YIo8oFHg==
+  resolved "https://registry.yarnpkg.com/@cycle/run/-/run-5.1.0.tgz#f2af7459a0809d4d97ae0dbce45b1194610208c5"
+  integrity sha512-zBjLl91JbGJt4TVqWnYXKvqgxDDZldjQeF71s6wOiY/Nt0RffaUACg5QkwNoHGLkFalBMp3Kmt+TNNONeA2N9w==
   dependencies:
-    "@cycle/isolate" ">=3"
-    "@cycle/run" "*"
-    xstream ">=10"
+    quicktask "1.1.0"
+    xstream "10.x || 11.x"
+
+"@cycle/state@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@cycle/state/-/state-1.0.0.tgz#3d4fa86fc9098607178d2d8299f7739779428269"
+  integrity sha512-Uma3uDwWlAj5UBGbYKKrZQ+5Mkh3uJ6zLPG8aWMDdax/0zW4BiI6Fiw+Qy59vbApAcyy4cFVSjxBL+S04KhMJw==
+  dependencies:
+    "@cycle/isolate" "^4.1.0"
+    "@cycle/run" "^5.1.0"
+    quicktask "1.1.0"
+    xstream ">=11"
 
 d@1:
   version "1.0.0"
@@ -120,6 +130,11 @@ prettier@^1.14.3:
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.14.3.tgz#90238dd4c0684b7edce5f83b0fb7328e48bd0895"
   integrity sha512-qZDVnCrnpsRJJq5nSsiHCE3BYMED2OtsI+cmzIzF1QIfqm5ALf8tEJcO27zV1gKNKRPdhjO0dNWnrzssDQ1tFg==
 
+quicktask@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/quicktask/-/quicktask-1.1.0.tgz#70795fd5922fb122100e662118c73a06aadd7352"
+  integrity sha512-b3w19IEXnt5auacLAbePVsqPyVQUwmuhJQrrWnVhm4pP8PAMg2U9vFHbAD9XYXXbMDjdLJs0x5NLqwTV8uFK4g==
+
 snabbdom-selector@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/snabbdom-selector/-/snabbdom-selector-3.0.0.tgz#787011a5e89e8b1fa2fb768d4bb52a84396714ec"
@@ -147,9 +162,16 @@ typescript@^2.8.3:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.8.3.tgz#5d817f9b6f31bb871835f4edf0089f21abe6c170"
   integrity sha512-K7g15Bb6Ra4lKf7Iq2l/I5/En+hLIHmxWZGq3D4DIRNFxMNV6j2SHSvDOqs2tGd4UvD/fJvrwopzQXjLrT7Itw==
 
-"xstream@10.x || 11.x", xstream@11.x, xstream@>=10, xstream@^11.3.0:
+"xstream@10.x || 11.x", xstream@11.x, xstream@^11.3.0:
   version "11.3.0"
   resolved "https://registry.yarnpkg.com/xstream/-/xstream-11.3.0.tgz#a53dde178895bdc38f3dd5aaa5c9dd8b5864fa5a"
   integrity sha512-TCI3SRiqcB8XXbiHXAc53kkI9npanu2RqB4FBfbmM2vf035Sf7rBs+36OEt4Ve70Xx5mPuMaT0F/vpW+ix4bzw==
+  dependencies:
+    symbol-observable "1.2.0"
+
+xstream@>=11, xstream@^11.7.0:
+  version "11.7.0"
+  resolved "https://registry.yarnpkg.com/xstream/-/xstream-11.7.0.tgz#6557e9710e1ab05ae28b6902af41745250d32e36"
+  integrity sha512-wO3TXiQd2/1UZNVsixDIcQgAN6TU4sGH7qIXvs1CRp1kgtkpU8YTfyKt/z/Z1psqcGnR0cJJxHaCnBxtktLx9w==
   dependencies:
     symbol-observable "1.2.0"
