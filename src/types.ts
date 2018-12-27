@@ -1,4 +1,4 @@
-import { DOMSource, VNode, MainDOMSource } from '@cycle/dom';
+import { DOMSource, VNode } from '@cycle/dom';
 import { Component } from '@cycle/isolate';
 import { Lens, StateSource } from '@cycle/state';
 import { Endo } from 'jazz-func/endo';
@@ -10,7 +10,7 @@ import { MemoryStream, Stream } from 'xstream';
  * Source streams of a form component.
  */
 export type Sources<Decl extends FormDeclaration<any>> = {
-    DOM: MainDOMSource;
+    DOM: DOMSource;
     state: StateSource<Values<Decl>>;
     renderer$: MemoryStream<FormRenderer<Decl>>;
     untouch$?: Stream<keyof Decl | null>;

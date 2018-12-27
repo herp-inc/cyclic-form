@@ -1,4 +1,4 @@
-import { VNode } from '@cycle/dom';
+import { VNode, DOMSource, MainDOMSource } from '@cycle/dom';
 import { Scope } from '@cycle/dom/lib/es6/isolate';
 import { Component, toIsolated } from '@cycle/isolate';
 import { Lens } from '@cycle/state';
@@ -59,8 +59,6 @@ export function form<Decl extends FormDeclaration<any>>(
         untouch$ = Stream.never(),
         validators$ = Stream.of({}).remember(),
     }: Sources<Decl>): Sinks<Decl> {
-        const { isolateSource } = DOM;
-
         let touchedKeys = new Set<keyof Decl>();
         untouch$.addListener({
             next(key) {
@@ -71,6 +69,12 @@ export function form<Decl extends FormDeclaration<any>>(
                 }
             },
         });
+
+        // isolate DOM source only when supported
+        const isolateSource =
+            typeof (DOM as MainDOMSource).isolateSource === 'function'
+                ? (DOM as MainDOMSource).isolateSource
+                : (source: DOMSource, _scope: any) => source;
 
         Object.keys(fields).forEach((key: keyof Decl) => {
             const isolatedDOMSource = isolateSource(DOM, key);
@@ -158,7 +162,7 @@ export function form<Decl extends FormDeclaration<any>>(
                             { valid: allValid },
                         );
 
-                        return [key, totalIsolateVNode(vnode, DOM.namespace, key)];
+                        return [key, totalIsolateVNode(vnode, (DOM as MainDOMSource).namespace, key)];
                     })
                     .reduce(
                         (acc: Record<keyof Decl, VNode | null>, [key, vnode]: [keyof Decl, VNode]) =>
