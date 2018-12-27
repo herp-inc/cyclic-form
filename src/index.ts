@@ -1,6 +1,5 @@
 import { VNode } from '@cycle/dom';
-import { isolateSource } from '@cycle/dom/lib/cjs/isolate';
-import { SCOPE_PREFIX } from '@cycle/dom/lib/cjs/utils';
+import { Scope } from '@cycle/dom/lib/es6/isolate';
 import { Component, toIsolated } from '@cycle/isolate';
 import { Lens } from '@cycle/state';
 import { Endo, id } from 'jazz-func/endo';
@@ -59,6 +58,7 @@ export function form<Decl extends FormDeclaration<any>>(
         renderer$,
         validators$ = Stream.of({}).remember(),
     }: Sources<Decl>): Sinks<Decl> {
+        const { isolateSource } = DOM;
         const touchedKeys = new Set<keyof Decl>();
 
         Object.keys(fields).forEach((key: keyof Decl) => {
@@ -126,13 +126,6 @@ export function form<Decl extends FormDeclaration<any>>(
 
                 const allValid = Object.values(errors).every(e => e === null);
 
-                // used for isolating sinks
-                const makeIsolationKey = function(key: string) {
-                    const namespace: string = (DOM as any)._namespace[0];
-                    const prefix = namespace ? namespace.replace(SCOPE_PREFIX, '') : '';
-                    return [prefix, key].filter(Boolean).join('-');
-                };
-
                 const vnodes: Record<keyof Decl, VNode | null> = Object.keys(fields)
                     .map<[keyof Decl, VNode | null]>((key: keyof Decl) => {
                         const field: Field<Decl[keyof Decl]> | null | undefined = fields[key];
@@ -154,7 +147,7 @@ export function form<Decl extends FormDeclaration<any>>(
                             { valid: allValid },
                         );
 
-                        return [key, totalIsolateVNode(vnode, makeIsolationKey(key))];
+                        return [key, totalIsolateVNode(vnode, DOM.namespace, key)];
                     })
                     .reduce(
                         (acc: Record<keyof Decl, VNode | null>, [key, vnode]: [keyof Decl, VNode]) =>
@@ -176,30 +169,24 @@ export function form<Decl extends FormDeclaration<any>>(
     };
 }
 
-// copied from https://github.com/cyclejs/cyclejs/blob/6758f00d2004d9a5aee6e2c186b2b278e39fa4a8/dom/src/isolate.ts
+// copied from https://github.com/cyclejs/cyclejs/blob/90645d669f360edd792618e42512ea0d90da189a/dom/src/isolate.ts#L24-L46
 // couldn't be imported as it is originally used within map() function
-// modified a little bit to avoid a bug by sharing the same reference
-function totalIsolateVNode(node: VNode, scope: string): VNode {
-    node.sel += `.${scope}`;
-
-    if (node.data && (node.data as any).isolate) {
-        const isolateData = (node.data as any).isolate as string;
-        const prevFullScopeNum = isolateData.replace(/(cycle|\-)/g, '');
-        const fullScopeNum = scope.replace(/(cycle|\-)/g, '');
-
-        if (isNaN(parseInt(prevFullScopeNum)) || isNaN(parseInt(fullScopeNum)) || prevFullScopeNum > fullScopeNum) {
-            // > is lexicographic string comparison
-            return node;
-        }
+function totalIsolateVNode(node: VNode, namespace: Scope[], scope: string) {
+    if (!node) {
+        return node;
     }
-
-    // Insert up-to-date full scope in vnode.data.isolate, and also a key if needed
-    node.data = Object.assign({}, node.data || {}, { isolate: scope });
-    if (typeof node.key === 'undefined') {
-        node.key = SCOPE_PREFIX + scope;
-    }
-
-    return node;
+    const scopeObj: Scope = { type: 'total', scope };
+    const newNode = {
+        ...node,
+        data: {
+            ...node.data,
+            isolate: !node.data || !Array.isArray(node.data.isolate) ? namespace.concat([scopeObj]) : node.data.isolate,
+        },
+    };
+    return {
+        ...newNode,
+        key: newNode.key !== undefined ? newNode.key : JSON.stringify(newNode.data.isolate),
+    };
 }
 
 function evolveC<Struct extends object>(
