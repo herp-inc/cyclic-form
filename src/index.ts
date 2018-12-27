@@ -56,10 +56,21 @@ export function form<Decl extends FormDeclaration<any>>(
         DOM,
         state,
         renderer$,
+        untouch$ = Stream.never(),
         validators$ = Stream.of({}).remember(),
     }: Sources<Decl>): Sinks<Decl> {
         const { isolateSource } = DOM;
-        const touchedKeys = new Set<keyof Decl>();
+
+        let touchedKeys = new Set<keyof Decl>();
+        untouch$.addListener({
+            next(key) {
+                if (key === null) {
+                    touchedKeys = new Set();
+                } else {
+                    touchedKeys.delete(key);
+                }
+            },
+        });
 
         Object.keys(fields).forEach((key: keyof Decl) => {
             const isolatedDOMSource = isolateSource(DOM, key);

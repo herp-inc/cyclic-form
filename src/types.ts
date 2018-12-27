@@ -13,6 +13,7 @@ export type Sources<Decl extends FormDeclaration<any>> = {
     DOM: MainDOMSource;
     state: StateSource<Values<Decl>>;
     renderer$: MemoryStream<FormRenderer<Decl>>;
+    untouch$?: Stream<keyof Decl | null>;
     validators$?: MemoryStream<ValidatorsFor<Decl>>;
 };
 
