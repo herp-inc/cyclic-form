@@ -157,7 +157,9 @@ export type ZoomIn<Parent extends object, Scope extends Lens<Parent, any> | keyo
     infer Child
 >
     ? Child
-    : Scope extends keyof Parent ? Parent[Scope] : never;
+    : Scope extends keyof Parent
+    ? Parent[Scope]
+    : never;
 
 // others
 
