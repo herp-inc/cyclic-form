@@ -50,8 +50,41 @@ export function isolate<State extends object, Scope extends Lens<State, any> | k
     }
 }
 
+export namespace Options {
+    /**
+     * Options for custom submission. 
+     * - `predicate` is a function which defines what custom keybinds are. By default, 'Ctrl + Enter' and 'Metakey + Enter' are treated as submission keybinds.
+     * - `fields` is the set of the form field which accepts custom keybinds.
+     */
+    export type CustomSubmission<Decl extends FormDeclaration<any>> = Readonly<{
+        fields: Set<keyof Decl>;
+        predicate(e: KeyboardEvent): boolean;
+    }>;
+}
+
+/**
+ * Options to customize form behavior
+ * - `customSubmission` enables the form to be submitted by custom keybinds like 'Ctrl + Enter'.
+ */
+export type Options<Decl extends FormDeclaration<any>> = Readonly<{
+    customSubmission: Options.CustomSubmission<Decl>;
+}>;
+
+/**
+ * Form component constructor
+ *
+ * @example
+ * form(fieldsConstructor(), {
+ *   customSubmission: {
+ *     // We can submit this form by pressing 'Ctrl + Enter' of 'Meta + Enter' while editing 'description' fields
+ *     fields: new Set(['description']),
+ *   },
+ * })
+ *
+ */
 export function form<Decl extends FormDeclaration<any>>(
     fields: FieldsFor<Decl>,
+    options: Options<Decl> = { customSubmission: { fields: new Set<keyof Decl>(), predicate: defaultPredicate } },
 ): Component<Sources<Decl>, Sinks<Decl>> {
     return function Form({
         DOM,
@@ -60,6 +93,17 @@ export function form<Decl extends FormDeclaration<any>>(
         validators$ = Stream.of({}).remember(),
     }: Sources<Decl>): Sinks<Decl> {
         const touchedKeys = new Set<keyof Decl>();
+
+        const { customSubmission } = options;
+        const { fields: submissionFields } = customSubmission;
+        const { predicate } = customSubmission;
+        const customSubmission$ = Stream.merge(
+            ...Array.from(submissionFields).map(key =>
+                isolateSource(DOM, key)
+                    .events('keydown')
+                    .filter(predicate),
+            ),
+        );
 
         Object.keys(fields).forEach((key: keyof Decl) => {
             const isolatedDOMSource = isolateSource(DOM, key);
@@ -168,10 +212,14 @@ export function form<Decl extends FormDeclaration<any>>(
             })
             .remember();
 
+        const submission$ = Stream.merge(
+            DOM.select('form').events('submit', { preventDefault: true }),
+            customSubmission$,
+        );
         return {
             DOM: vnode$,
             state: reducer$,
-            submission$: DOM.select('form').events('submit', { preventDefault: true }),
+            submission$,
         };
     };
 }
@@ -221,3 +269,7 @@ function evolveC<Struct extends object>(
         return newStruct as Struct;
     };
 }
+
+const ctrlEnter = (e: KeyboardEvent) => e.ctrlKey && e.key === 'Enter';
+const metaEnter = (e: KeyboardEvent) => e.metaKey && e.key === 'Enter';
+const defaultPredicate = (e: KeyboardEvent) => ctrlEnter(e) || metaEnter(e);
