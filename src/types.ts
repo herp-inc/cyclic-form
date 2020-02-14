@@ -92,14 +92,14 @@ export type FieldDeclaration<T, Options extends FieldOptions<any>> = {
  * Defines what the entire form is look like.
  */
 export type FormDeclaration<Values extends any> = {
-    [FieldName in keyof Values]: FieldDeclaration<Values[FieldName], { error: any }>
+    [FieldName in keyof Values]: FieldDeclaration<Values[FieldName], { error: any }>;
 };
 
 /**
  * Field implementations for the given `FormDeclaration`.
  */
 export type FieldsFor<Form extends FormDeclaration<any>> = {
-    [FieldName in keyof Form]?: Field<Form[FieldName]['type'], FieldOptions<Form[FieldName]['error']>>
+    [FieldName in keyof Form]?: Field<Form[FieldName]['type'], FieldOptions<Form[FieldName]['error']>>;
 };
 
 /**
@@ -108,7 +108,7 @@ export type FieldsFor<Form extends FormDeclaration<any>> = {
 export type ValidatorsFor<Form extends FormDeclaration<any>> = {
     [FieldName in keyof Form]?: Form[FieldName]['error'] extends infer Err
         ? Validator<Form[FieldName]['type'], Err>
-        : never
+        : never;
 };
 
 /**

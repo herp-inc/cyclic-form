@@ -51,7 +51,7 @@ export function isolate<State extends object, Scope extends Lens<State, any> | k
 
 export namespace Options {
     /**
-     * Options for custom submission. 
+     * Options for custom submission.
      * - `predicate` is a function which defines what custom keybinds are. By default, 'Ctrl + Enter' and 'Metakey + Enter' are treated as submission keybinds.
      * - `fields` is the set of the form field which accepts custom keybinds.
      */
