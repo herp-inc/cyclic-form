@@ -75,8 +75,9 @@ export type Options<Decl extends FormDeclaration<any>> = Readonly<{
  * @example
  * form(fieldsConstructor(), {
  *   customSubmission: {
- *     // We can submit this form by pressing 'Ctrl + Enter' of 'Meta + Enter' while editing 'description' fields
+ *     // We can submit this form by pressing 'Ctrl + Enter' while editing 'description' fields
  *     fields: new Set(['description']),
+ *     predicate: (e: KeyboardEvent) => e.ctrlKey && e.key === 'Enter'
  *   },
  * })
  *
