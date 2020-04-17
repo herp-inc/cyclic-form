@@ -221,10 +221,23 @@ export function form<Decl extends FormDeclaration<any>>(
             })
             .remember();
 
-        const submission$ = Stream.merge(
-            DOM.select('form').events('submit', { preventDefault: true }),
-            customSubmission$,
-        );
+        const submit$: Stream<Event> = new Stream();
+        // This is needed to workaround issue that event listener is not added
+        // for the second time.
+        // https://github.com/cyclejs/cyclejs/issues/893
+        (DOM.select('form').element() as Stream<Element>).addListener({
+            next(element: Element) {
+                if (!(element as any).didInjectSubmitListenerForCyclicForm) {
+                    element.addEventListener('submit', e => {
+                        e.preventDefault();
+                        submit$.shamefullySendNext(e);
+                    });
+                    (element as any).didInjectSubmitListenerForCyclicForm = true;
+                }
+            },
+        });
+
+        const submission$ = Stream.merge(submit$, customSubmission$);
         return {
             DOM: vnode$,
             state: reducer$,
