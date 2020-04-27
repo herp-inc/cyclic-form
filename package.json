@@ -9,7 +9,7 @@
   "author": "Ryota Kameoka <kameoka.ryota@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@cycle/dom": "^22.6.0",
+    "@cycle/dom": "^22.7.0",
     "@cycle/isolate": "^4.2.0",
     "@cycle/state": "^1.1.0",
     "jazz-func": "^0.6.0",
