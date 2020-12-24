@@ -12,10 +12,10 @@
     snabbdom-selector "^4.2.0"
     xstream "11.x"
 
-"@cycle/isolate@^4.2.0":
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-4.2.0.tgz#8e76980556dedfc92415c6f0487f3dcd078d9e17"
-  integrity sha512-I11AOSaKIIuh5Ww08BRO9pZiqi5HxtQUM2eFMOAkwDyjlLfuzqvZKSg61NWJfl/RPAgcMwgDo1tbExSr3nI+NA==
+"@cycle/isolate@^5.0.0", "@cycle/isolate@^5.2.0":
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/@cycle/isolate/-/isolate-5.2.0.tgz#42150b2d6ffabf35e745acc8baee5184dda9c474"
+  integrity sha512-BLyyd/EceQnuGaUVSBotdZkBEUeJq1zMbdK7LPdc7WMiJbinkduHue+rOe3BGbK3Ba7LGt7kjRBEfzLke9FGkg==
   dependencies:
     "@cycle/run" "^5.2.0"
     xstream "^11.7.0"
@@ -28,12 +28,12 @@
     quicktask "1.1.0"
     xstream "10.x || 11.x"
 
-"@cycle/state@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@cycle/state/-/state-1.1.0.tgz#19ca94232780841a02046f436b5750f78fb3c6f0"
-  integrity sha512-Dr4/CI1kizy7pF7AWFU2MzW1dZzxhbSIAFx85rk/xeeHBYaoivQIbwO9r881+J3zLg/6jKME38A2BnVT20S3Fw==
+"@cycle/state@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@cycle/state/-/state-1.4.0.tgz#7180d436fddbbda512b7be81aa54c2558ccdb0f3"
+  integrity sha512-qFishH6mj+dHq4p7ZIP8ZeNoZIICTHQSp2LTsl/kXKlf+6Z2djOB5PK6pgHt3fVg8v46BTs2rFWmTwMbE/QtXQ==
   dependencies:
-    "@cycle/isolate" "^4.2.0"
+    "@cycle/isolate" "^5.0.0"
     "@cycle/run" "^5.2.0"
     quicktask "1.1.0"
     xstream ">=11"
@@ -75,10 +75,10 @@ tree-selector@^2.1.0:
   resolved "https://registry.yarnpkg.com/tree-selector/-/tree-selector-2.1.1.tgz#644af6c3aa361aabdd8ae545b58f82155884fc17"
   integrity sha512-NVFYU6YzyUHSMS7+qbhdHlBHG5P9IPjycQa+8MnIBDpq/UWEkMD+lAL/56x7Fty+mAq9SWgtg9D4flZfuOZdDg==
 
-typescript@^3.2.2:
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.2.2.tgz#fe8101c46aa123f8353523ebdcf5730c2ae493e5"
-  integrity sha512-VCj5UiSyHBjwfYacmDuc/NOk4QQixbE+Wn7MFJuS0nRuPQbof132Pw4u53dm264O8LPc2MVsc7RJNml5szurkg==
+typescript@^4.1.3:
+  version "4.1.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.1.3.tgz#519d582bd94cba0cf8934c7d8e8467e473f53bb7"
+  integrity sha512-B3ZIOf1IKeH2ixgHhj6la6xdwR9QrLC5d1VKeCSY4tvkqhF2eqd9O7txNlS0PO3GrBAFIdr3L1ndNwteUbZLYg==
 
 "xstream@10.x || 11.x", xstream@11.x, xstream@>=11, xstream@^11.7.0:
   version "11.7.0"
