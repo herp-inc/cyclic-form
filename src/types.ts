@@ -1,4 +1,4 @@
-import { DOMSource, VNode } from '@cycle/dom';
+import { MainDOMSource, VNode } from '@cycle/dom';
 import { Component } from '@cycle/isolate';
 import { Lens, StateSource } from '@cycle/state';
 import { Endo } from 'jazz-func/endo';
@@ -10,7 +10,7 @@ import { MemoryStream, Stream } from 'xstream';
  * Source streams of a form component.
  */
 export type Sources<Decl extends FormDeclaration<any>> = {
-    DOM: DOMSource;
+    DOM: MainDOMSource;
     state: StateSource<Values<Decl>>;
     renderer$: MemoryStream<FormRenderer<Decl>>;
     untouch$?: Stream<keyof Decl | null>;
@@ -39,16 +39,16 @@ export type Field<T, Options extends FieldOptions<any> = FieldOptions<string>> =
 /**
  * An `Intent` defines how to change the field value by listening to user's actions.
  *
- * It takes a `DOMSource` as an argument and returns a stream of endomorphisms.
+ * It takes a `MainDOMSource` as an argument and returns a stream of endomorphisms.
  * The value of the field can be modified (or set) through this stream.
  *
- * Note that the given `DOMSource` is isolated.
+ * Note that the given `MainDOMSource` is isolated.
  *
  * ```
- * const intent: Intent<string> = (DOM: DOMSource) => DOM.select('input').events('input').map((e: any) => _ => e.target.value);
+ * const intent: Intent<string> = (DOM: MainDOMSource) => DOM.select('input').events('input').map((e: any) => _ => e.target.value);
  * ```
  */
-export type Intent<T> = (DOM: DOMSource) => Stream<Endo<T>>;
+export type Intent<T> = (DOM: MainDOMSource) => Stream<Endo<T>>;
 
 /**
  * A `View` defines how to tell the current state of the field to the user.

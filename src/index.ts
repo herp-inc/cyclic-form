@@ -1,4 +1,4 @@
-import { VNode, DOMSource, MainDOMSource } from '@cycle/dom';
+import { VNode, MainDOMSource } from '@cycle/dom';
 import { Scope } from '@cycle/dom/lib/es6/isolate';
 import { Component, toIsolated } from '@cycle/isolate';
 import { Lens } from '@cycle/state';
@@ -106,9 +106,9 @@ export function form<Decl extends FormDeclaration<any>>(
 
         // isolate DOM source only when supported
         const isolateSource =
-            typeof (DOM as MainDOMSource).isolateSource === 'function'
-                ? (DOM as MainDOMSource).isolateSource
-                : (source: DOMSource, _scope: any) => source;
+            typeof DOM.isolateSource === 'function'
+                ? DOM.isolateSource
+                : (source: MainDOMSource, _scope: any) => source;
 
         const { customSubmission } = options;
         const { fields: submissionFields } = customSubmission;
@@ -137,14 +137,14 @@ export function form<Decl extends FormDeclaration<any>>(
                 });
         });
 
-        const combined$: Stream<[Decl, FormRenderer<Decl>, ValidatorsFor<Decl>]> = Stream.combine(
+        const combined$: Stream<[Values<Decl>, FormRenderer<Decl>, ValidatorsFor<Decl>]> = Stream.combine(
             state.stream,
             renderer$,
             validators$,
         );
 
         const reducer$s: Stream<Endo<Values<Decl>>>[] = Object.keys(fields).map((key: keyof Decl) => {
-            const field: Field<Decl[keyof Decl]> | null | undefined = fields[key];
+            const field = fields[key];
 
             if (!field) {
                 return Stream.of(id);
@@ -166,7 +166,7 @@ export function form<Decl extends FormDeclaration<any>>(
             .map(([values, renderer, validators]) => {
                 const errors: Record<keyof Decl, string | null> = Object.keys(fields)
                     .map<[keyof Decl, string | null]>((key: keyof Decl) => {
-                        const field: Field<Decl[keyof Decl]> | null | undefined = fields[key];
+                        const field = fields[key];
                         const validator: any = validators[key];
 
                         if (!field || !validator) {
@@ -188,15 +188,14 @@ export function form<Decl extends FormDeclaration<any>>(
 
                 const vnodes: Record<keyof Decl, VNode | null> = Object.keys(fields)
                     .map<[keyof Decl, VNode | null]>((key: keyof Decl) => {
-                        const field: Field<Decl[keyof Decl]> | null | undefined = fields[key];
-                        const value: Decl[keyof Decl] = values[key];
+                        const field = fields[key];
+                        const value = values[key];
 
                         if (!field) {
                             return [key, null];
                         }
 
-                        // any because the validation result differs from field to field
-                        const error: any = errors[key] || null;
+                        const error = errors[key] || null;
 
                         const vnode = field.view(
                             {
