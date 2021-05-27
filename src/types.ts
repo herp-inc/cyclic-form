@@ -1,6 +1,6 @@
 import { MainDOMSource, VNode } from '@cycle/dom';
 import { Component } from '@cycle/isolate';
-import { Lens, StateSource } from '@cycle/state';
+import { Lens, Reducer, StateSource } from '@cycle/state';
 import { MemoryStream, Stream } from 'xstream';
 
 export type Endo<A> = (x: A) => A;
@@ -16,7 +16,7 @@ export type Sources<Decl extends FormDeclaration<any>> = {
     renderer$: MemoryStream<FormRenderer<Decl>>;
     untouch$?: Stream<keyof Decl | null>;
     validators$?: MemoryStream<ValidatorsFor<Decl>>;
-};
+} & OtherSourcesFor<Decl>;
 
 /**
  * Sink streams of a form component.
@@ -25,9 +25,26 @@ export type Sinks<Decl extends FormDeclaration<any>> = {
     DOM: MemoryStream<VNode>;
     state: Stream<Endo<Values<Decl>>>;
     submission$: Stream<Event>;
-};
+} & OtherSinksFor<Decl>;
 
 // form / fields
+
+export type AnyEffectFieldSources<S, OtherSources, Options extends FieldOptions<any> = FieldOptions<string>> = {
+    DOM: MainDOMSource;
+    metadata: Stream<MetaData>;
+    state: StateSource<S>;
+    error: Stream<Options['error'] | undefined>;
+    touched: Stream<boolean>;
+} & OtherSources;
+
+export type AnyEffectFieldSinks<S, OtherSinks> = {
+    state: Stream<Reducer<S>>;
+    DOM: Stream<VNode | null>;
+} & OtherSinks;
+
+export type AnyEffectField<S, OtherSources, OtherSinks, Options extends FieldOptions<any> = FieldOptions<string>> = (
+    sources: AnyEffectFieldSources<S, OtherSources, Options>,
+) => AnyEffectFieldSinks<S, OtherSinks>;
 
 /**
  * A form field consists of an `Intent` and a `View`.
@@ -84,9 +101,16 @@ export type SimpleForm<Form> = { [FieldName in keyof Form]: FieldDeclaration<For
 /**
  * A declaration of a single form field.
  */
-export type FieldDeclaration<T, Options extends FieldOptions<any>> = {
+export type FieldDeclaration<
+    T,
+    Options extends FieldOptions<any>,
+    OtherSources extends object = {},
+    OtherSinks extends object = {}
+> = {
     type: T;
     error: Options['error'];
+    otherSources: OtherSources;
+    otherSinks: OtherSinks;
 };
 
 /**
@@ -100,8 +124,25 @@ export type FormDeclaration<Values extends any> = {
  * Field implementations for the given `FormDeclaration`.
  */
 export type FieldsFor<Form extends FormDeclaration<any>> = {
-    [FieldName in keyof Form]?: Field<Form[FieldName]['type'], FieldOptions<Form[FieldName]['error']>>;
+    [FieldName in keyof Form]?: {
+        // If not `otherSinks == {} && otherSources == {}`, only `AnyEffectFieldFor`
+        0: AnyEffectFieldFor<Form[FieldName]>;
+        1: FieldFor<Form[FieldName]> | AnyEffectFieldFor<Form[FieldName]>;
+    }[{} extends Form[FieldName]['otherSinks'] ? ({} extends Form[FieldName]['otherSources'] ? 1 : 0) : 0];
 };
+
+export type FieldFor<Decl extends FieldDeclaration<any, any>> = Field<Decl['type'], FieldOptions<Decl['error']>>;
+
+export type AnyEffectFieldsFor<Decl extends FormDeclaration<any>> = {
+    [FieldName in keyof Decl]?: AnyEffectFieldFor<Decl[FieldName]>;
+};
+
+export type AnyEffectFieldFor<Decl extends FieldDeclaration<any, any, any, any>> = AnyEffectField<
+    Decl['type'],
+    Decl['otherSources'],
+    Decl['otherSinks'],
+    FieldOptions<Decl['error']>
+>;
 
 /**
  * Validators implementations for the given `FormDeclaration`.
@@ -111,6 +152,24 @@ export type ValidatorsFor<Form extends FormDeclaration<any>> = {
         ? Validator<Form[FieldName]['type'], Err>
         : never;
 };
+
+/**
+ * OtherSources implementations for the given `FormDeclaration`.
+ */
+export type OtherSourcesFor<Form extends FormDeclaration<any>> = ValuesIntersection<
+    {
+        [FieldName in keyof Form]: Form[FieldName]['otherSources'];
+    }
+>;
+
+/**
+ * OtherSinks implementations for the given `FormDeclaration`.
+ */
+export type OtherSinksFor<Form extends FormDeclaration<any>> = ValuesIntersection<
+    {
+        [FieldName in keyof Form]: Form[FieldName]['otherSinks'];
+    }
+>;
 
 /**
  * Takes a map from field names to the corresponding `VNode`, and returns a `VNode` of the entire form.
@@ -165,3 +224,12 @@ export type ZoomIn<Parent extends object, Scope extends Lens<Parent, any> | keyo
 // others
 
 export type Omit<T, K> = Pick<T, Exclude<keyof T, K>>;
+
+/**
+ * ValuesIntersection<{ x: { a: 1 }; y: { b: 2 } }> == { a: 1; b: 2; }
+ */
+type ValuesIntersection<A> = {
+    [P in keyof A]: (_: A[P]) => void;
+}[keyof A] extends (_: infer R) => void
+    ? R
+    : never;

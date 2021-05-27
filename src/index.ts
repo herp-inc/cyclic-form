@@ -6,10 +6,14 @@ import { MemoryStream, Stream } from 'xstream';
 
 import {
     Endo,
-    Field,
+    AnyEffectField,
+    AnyEffectFieldsFor,
+    AnyEffectFieldSinks,
+    FieldDeclaration,
+    FieldFor,
+    FieldOptions,
     FieldsFor,
     FormDeclaration,
-    FormRenderer,
     IsolatedForm,
     Sinks,
     Sources,
@@ -20,11 +24,14 @@ import {
 
 // re-exports
 export {
+    AnyEffectField,
+    AnyEffectFieldFor,
     Field,
     FieldsFor,
     FieldDeclaration,
     FormDeclaration,
     FormRenderer,
+    FieldOptions,
     Intent,
     IsolatedForm,
     MetaData,
@@ -88,29 +95,58 @@ export function form<Decl extends FormDeclaration<any>>(
     fields: FieldsFor<Decl>,
     options: Options<Decl> = { customSubmission: { fields: new Set<keyof Decl>(), predicate: defaultPredicate } },
 ): Component<Sources<Decl>, Sinks<Decl>> {
-    return function Form({
-        DOM,
-        state,
-        renderer$,
-        untouch$ = Stream.never(),
-        validators$ = Stream.of({}).remember(),
-    }: Sources<Decl>): Sinks<Decl> {
-        let touchedKeys = new Set<keyof Decl>();
-        untouch$.addListener({
-            next(key) {
-                if (key === null) {
-                    touchedKeys = new Set();
+    return function Form(sources: Sources<Decl>): Sinks<Decl> {
+        const {
+            DOM,
+            state,
+            renderer$,
+            untouch$ = Stream.never(),
+            validators$ = Stream.of<ValidatorsFor<Decl>>({}).remember(),
+        } = sources;
+
+        const anyEffectFields: AnyEffectFieldsFor<Decl> = Object.fromEntries(
+            Object.keys(fields).map((key: keyof Decl) => {
+                const field = fields[key];
+                if (field === undefined) {
+                    return [key, undefined];
+                } else if (typeof field === 'object') {
+                    return [key, toAnyEffectField(field as FieldFor<any>)];
                 } else {
-                    touchedKeys.delete(key);
+                    return [key, field];
                 }
-            },
-        });
+            }),
+        );
 
         // isolate DOM source only when supported
         const isolateSource =
             typeof DOM.isolateSource === 'function'
                 ? DOM.isolateSource
                 : (source: MainDOMSource, _scope: any) => source;
+
+        const touchedKeys = new Set<keyof Decl>();
+        const touchedKeys$ = Stream.merge(
+            untouch$.map(key => {
+                if (key === null) {
+                    touchedKeys.clear();
+                } else {
+                    touchedKeys.delete(key);
+                }
+                return touchedKeys;
+            }),
+            ...Object.keys(anyEffectFields).map((key: keyof Decl) => {
+                const isolatedDOMSource = isolateSource(DOM, key);
+                return Stream.merge(
+                    isolatedDOMSource.events('change'),
+                    isolatedDOMSource.events('focus'),
+                    isolatedDOMSource.events('input'),
+                )
+                    .take(1)
+                    .map(_ => {
+                        touchedKeys.add(key);
+                        return touchedKeys;
+                    });
+            }),
+        ).startWith(touchedKeys);
 
         const { customSubmission } = options;
         const { fields: submissionFields } = customSubmission;
@@ -123,40 +159,61 @@ export function form<Decl extends FormDeclaration<any>>(
             ),
         );
 
-        Object.keys(fields).forEach((key: keyof Decl) => {
-            const isolatedDOMSource = isolateSource(DOM, key);
+        const errors$ = Stream.combine(state.stream, validators$).map(([values, validators]) => {
+            return Object.keys(anyEffectFields)
+                .map<[keyof Decl, string | null]>((key: keyof Decl) => {
+                    const field = anyEffectFields[key];
+                    const validator: any = validators[key];
 
-            Stream.merge(
-                isolatedDOMSource.events('change'),
-                isolatedDOMSource.events('focus'),
-                isolatedDOMSource.events('input'),
-            )
-                .take(1)
-                .addListener({
-                    next(_) {
-                        touchedKeys.add(key);
-                    },
-                });
+                    if (!field || !validator) {
+                        return [key, null];
+                    }
+
+                    const value = values[key];
+                    const error = validator ? validator(value) : null;
+
+                    return [key, error];
+                })
+                .reduce(
+                    (acc: Record<keyof Decl, string | null>, [key, error]: [keyof Decl, string | null]) =>
+                        Object.assign({}, acc, { [key]: error }),
+                    {} as Record<keyof Decl, string | null>,
+                );
         });
 
-        const combined$: Stream<[Values<Decl>, FormRenderer<Decl>, ValidatorsFor<Decl>]> = Stream.combine(
-            state.stream,
-            renderer$,
-            validators$,
-        );
+        const allValid$ = errors$.map(errors => Object.values(errors).every(e => e === null));
 
-        const reducer$s: Stream<Endo<Values<Decl>>>[] = Object.keys(fields).map((key: keyof Decl) => {
-            const field = fields[key];
+        const fieldInstances = Object.fromEntries(
+            Object.keys(anyEffectFields)
+                .map((key: keyof Decl) => {
+                    const field = anyEffectFields[key];
+                    if (field === undefined) {
+                        return [key, undefined];
+                    }
+                    const domSource = (field as any).shouldNotIsolate ? DOM : isolateSource(DOM, key);
+                    return [
+                        key,
+                        field({
+                            ...(sources as any),
+                            DOM: domSource,
+                            metadata: allValid$.map(allValid => ({ valid: allValid })),
+                            state: state.select(key),
+                            error: errors$.map(errors => errors[key]),
+                            touched: touchedKeys$.map(touchedKeys => touchedKeys.has(key)),
+                        }),
+                    ];
+                })
+                .filter(([_key, instance]) => instance !== undefined),
+        ) as Record<keyof Decl, AnyEffectFieldSinks<any, {}>>;
 
-            if (!field) {
+        const reducer$s: Stream<Endo<Values<Decl>>>[] = Object.keys(anyEffectFields).map((key: keyof Decl) => {
+            const fieldInstance = fieldInstances[key];
+
+            if (!fieldInstance) {
                 return Stream.of(id);
             }
 
-            const { intent } = field as Field<any>;
-            const domSource = (field as any).shouldNotIsolate ? DOM : isolateSource(DOM, key);
-            const endo$ = intent(domSource);
-
-            return endo$.map((endo: Endo<Values<Decl>>) =>
+            return fieldInstance.state.map((endo: Endo<Values<Decl>>) =>
                 evolveC<Values<Decl>>({
                     [key]: endo,
                 } as any),
@@ -164,58 +221,21 @@ export function form<Decl extends FormDeclaration<any>>(
         });
         const reducer$: Stream<Endo<Values<Decl>>> = Stream.merge(...reducer$s);
 
-        const vnode$: MemoryStream<VNode> = combined$
-            .map(([values, renderer, validators]) => {
-                const errors: Record<keyof Decl, string | null> = Object.keys(fields)
-                    .map<[keyof Decl, string | null]>((key: keyof Decl) => {
-                        const field = fields[key];
-                        const validator: any = validators[key];
-
-                        if (!field || !validator) {
-                            return [key, null];
-                        }
-
-                        const value = values[key];
-                        const error = validator ? validator(value) : null;
-
-                        return [key, error];
-                    })
-                    .reduce(
-                        (acc: Record<keyof Decl, string | null>, [key, error]: [keyof Decl, string | null]) =>
-                            Object.assign({}, acc, { [key]: error }),
-                        {} as Record<keyof Decl, string | null>,
-                    );
-
-                const allValid = Object.values(errors).every(e => e === null);
-
-                const vnodes: Record<keyof Decl, VNode | null> = Object.keys(fields)
-                    .map<[keyof Decl, VNode | null]>((key: keyof Decl) => {
-                        const field = fields[key];
-                        const value = values[key];
-
-                        if (!field) {
-                            return [key, null];
-                        }
-
-                        const error = errors[key] || null;
-
-                        const vnode = field.view(
-                            {
-                                error,
-                                touched: touchedKeys.has(key),
-                                value,
-                            },
-                            { valid: allValid },
-                        );
-
-                        return [key, totalIsolateVNode(vnode, (DOM as MainDOMSource).namespace, key)];
-                    })
-                    .reduce(
-                        (acc: Record<keyof Decl, VNode | null>, [key, vnode]: [keyof Decl, VNode]) =>
-                            Object.assign({}, acc, { [key]: vnode }),
-                        {} as Record<keyof Decl, VNode | null>,
-                    );
-
+        const vnode$: MemoryStream<VNode> = Stream.combine(
+            renderer$,
+            Stream.combine(
+                ...Object.keys(fieldInstances).map((key: keyof Decl) =>
+                    fieldInstances[key].DOM.map(
+                        vnode =>
+                            [
+                                key,
+                                vnode !== null ? totalIsolateVNode(vnode, (DOM as MainDOMSource).namespace, key) : null,
+                            ] as const,
+                    ),
+                ),
+            ).map(entries => Object.fromEntries(entries) as Record<keyof Decl, VNode | null>),
+        )
+            .map(([renderer, vnodes]) => {
                 const vnode = renderer(vnodes);
 
                 return vnode;
@@ -226,12 +246,56 @@ export function form<Decl extends FormDeclaration<any>>(
             DOM.select('form').events('submit', { preventDefault: true }),
             customSubmission$,
         );
+
+        const sinks: Record<string, Stream<any>[] | undefined> = {};
+        Object.keys(fieldInstances).forEach((key: keyof Decl) => {
+            const instances = fieldInstances[key];
+            Object.keys(instances).forEach((sinkKey: keyof typeof instances) => {
+                if (sinkKey === 'DOM' || sinkKey === 'state') {
+                    return;
+                }
+
+                if (sinks[sinkKey] === undefined) {
+                    sinks[sinkKey] = [];
+                }
+
+                sinks[sinkKey]!.push(instances[sinkKey] as any);
+            });
+        });
+
+        const otherSinks = Object.fromEntries(
+            Object.keys(sinks).map((key: keyof typeof sinks) => [key, Stream.merge(...sinks[key]!)] as const),
+        );
+
         return {
             DOM: vnode$,
             state: reducer$,
             submission$,
+            ...(otherSinks as any),
         };
     };
+}
+
+function toAnyEffectField<Decl extends FieldDeclaration<any, any, {}, {}>>(
+    field: FieldFor<Decl>,
+): AnyEffectField<Decl['type'], {}, {}, FieldOptions<Decl['error']>> {
+    const result: AnyEffectField<any, {}, {}, any> = ({ DOM, metadata, state, error, touched }) => {
+        const intent$ = field.intent(DOM);
+        const vnode$ = Stream.combine(metadata, state.stream, error, touched).map(([metadata, state, error, touched]) =>
+            field.view({ error, touched, value: state }, metadata),
+        );
+
+        return {
+            state: intent$,
+            DOM: vnode$,
+        };
+    };
+
+    if ((field as any).shouldNotIsolate) {
+        (result as any).shouldNotIsolate = (field as any).shouldNotIsolate;
+    }
+
+    return result;
 }
 
 // copied from https://github.com/cyclejs/cyclejs/blob/90645d669f360edd792618e42512ea0d90da189a/dom/src/isolate.ts#L24-L46
