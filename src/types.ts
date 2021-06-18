@@ -1,8 +1,9 @@
 import { MainDOMSource, VNode } from '@cycle/dom';
 import { Component } from '@cycle/isolate';
 import { Lens, StateSource } from '@cycle/state';
-import { Endo } from 'jazz-func/endo';
 import { MemoryStream, Stream } from 'xstream';
+
+export type Endo<A> = (x: A) => A;
 
 // sources and sinks
 

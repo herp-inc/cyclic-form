@@ -2,10 +2,10 @@ import { VNode, MainDOMSource } from '@cycle/dom';
 import { Scope } from '@cycle/dom/lib/es6/isolate';
 import { Component, toIsolated } from '@cycle/isolate';
 import { Lens } from '@cycle/state';
-import { Endo, id } from 'jazz-func/endo';
 import { MemoryStream, Stream } from 'xstream';
 
 import {
+    Endo,
     Field,
     FieldsFor,
     FormDeclaration,
@@ -36,6 +36,8 @@ export {
     View,
     ViewInput,
 } from './types';
+
+const id = <A>(x: A) => x;
 
 export function isolate<State extends object, Scope extends Lens<State, any> | keyof State>(
     scope: Scope,

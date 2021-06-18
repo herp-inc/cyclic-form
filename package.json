@@ -12,7 +12,6 @@
     "@cycle/dom": "^22.7.0",
     "@cycle/isolate": "^5.2.0",
     "@cycle/state": "^1.4.0",
-    "jazz-func": "^0.6.0",
     "xstream": "^11.7.0"
   },
   "devDependencies": {
