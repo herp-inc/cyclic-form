@@ -66,7 +66,7 @@ export type View<T, Options extends FieldOptions<any> = FieldOptions<string>> = 
  * A data set represents the current status of a field.
  */
 export type ViewInput<T, Options extends FieldOptions<any> = FieldOptions<string>> = {
-    error?: Options['error'];
+    error: Options['error'] | null;
     touched: boolean;
     value: T;
 };
