@@ -1,5 +1,14 @@
-parser: typescript
-printWidth: 120
-singleQuote: true
-tabWidth: 4
-trailingComma: all
+{
+  "printWidth": 120,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "all",
+  "overrides": [
+    {
+      "files": ["*.js", "*.ts", "*.tsx"],
+      "options": {
+        "tabWidth": 4
+      }
+    }
+  ]
+}

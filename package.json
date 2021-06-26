@@ -24,7 +24,7 @@
   },
   "scripts": {
     "pre-publish": "./bin/pre-publish.sh",
-    "prettier:check": "prettier --list-different src/**/*.ts",
-    "prettier:format": "prettier --write src/**/*.ts"
+    "prettier:check": "prettier --check .",
+    "prettier:format": "prettier --write ."
   }
 }

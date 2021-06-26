@@ -125,7 +125,7 @@ export function form<Decl extends FormDeclaration<any>>(
 
         const touchedKeys = new Set<keyof Decl>();
         const touchedKeys$ = Stream.merge(
-            untouch$.map(key => {
+            untouch$.map((key) => {
                 if (key === null) {
                     touchedKeys.clear();
                 } else {
@@ -141,7 +141,7 @@ export function form<Decl extends FormDeclaration<any>>(
                     isolatedDOMSource.events('input'),
                 )
                     .take(1)
-                    .map(_ => {
+                    .map((_) => {
                         touchedKeys.add(key);
                         return touchedKeys;
                     });
@@ -152,11 +152,7 @@ export function form<Decl extends FormDeclaration<any>>(
         const { fields: submissionFields } = customSubmission;
         const { predicate } = customSubmission;
         const customSubmission$ = Stream.merge(
-            ...Array.from(submissionFields).map(key =>
-                isolateSource(DOM, key)
-                    .events('keydown')
-                    .filter(predicate),
-            ),
+            ...Array.from(submissionFields).map((key) => isolateSource(DOM, key).events('keydown').filter(predicate)),
         );
 
         const errors$ = Stream.combine(state.stream, validators$).map(([values, validators]) => {
@@ -181,7 +177,7 @@ export function form<Decl extends FormDeclaration<any>>(
                 );
         });
 
-        const allValid$ = errors$.map(errors => Object.values(errors).every(e => e === null));
+        const allValid$ = errors$.map((errors) => Object.values(errors).every((e) => e === null));
 
         const fieldInstances = Object.fromEntries(
             Object.keys(anyEffectFields)
@@ -196,10 +192,10 @@ export function form<Decl extends FormDeclaration<any>>(
                         field({
                             ...(sources as any),
                             DOM: domSource,
-                            metadata: allValid$.map(allValid => ({ valid: allValid })),
+                            metadata: allValid$.map((allValid) => ({ valid: allValid })),
                             state: state.select(key),
-                            error: errors$.map(errors => errors[key]),
-                            touched: touchedKeys$.map(touchedKeys => touchedKeys.has(key)),
+                            error: errors$.map((errors) => errors[key]),
+                            touched: touchedKeys$.map((touchedKeys) => touchedKeys.has(key)),
                         }),
                     ];
                 })
@@ -226,14 +222,14 @@ export function form<Decl extends FormDeclaration<any>>(
             Stream.combine(
                 ...Object.keys(fieldInstances).map((key: keyof Decl) =>
                     fieldInstances[key].DOM.map(
-                        vnode =>
+                        (vnode) =>
                             [
                                 key,
                                 vnode !== null ? totalIsolateVNode(vnode, (DOM as MainDOMSource).namespace, key) : null,
                             ] as const,
                     ),
                 ),
-            ).map(entries => Object.fromEntries(entries) as Record<keyof Decl, VNode | null>),
+            ).map((entries) => Object.fromEntries(entries) as Record<keyof Decl, VNode | null>),
         )
             .map(([renderer, vnodes]) => {
                 const vnode = renderer(vnodes);
@@ -321,7 +317,7 @@ function totalIsolateVNode(node: VNode, namespace: Scope[], scope: string) {
 function evolveC<Struct extends object>(
     transformations: Partial<{ [P in keyof Struct]: Endo<Struct[P]> }>,
 ): Endo<Struct> {
-    return function(struct: Struct): Struct {
+    return function (struct: Struct): Struct {
         const newStruct: any = Object.create(null);
 
         Object.keys(struct).forEach((key: keyof Struct) => {

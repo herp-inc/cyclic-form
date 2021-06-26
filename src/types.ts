@@ -105,7 +105,7 @@ export type FieldDeclaration<
     T,
     Options extends FieldOptions<any>,
     OtherSources extends object = {},
-    OtherSinks extends object = {}
+    OtherSinks extends object = {},
 > = {
     type: T;
     error: Options['error'];
