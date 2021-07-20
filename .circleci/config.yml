@@ -2,8 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: node:10.1.0
-    working_directory: /workdir
+      - image: cimg/node:lts
     steps:
       - checkout
       - run:
