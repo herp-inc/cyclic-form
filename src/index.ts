@@ -193,7 +193,9 @@ export function form<Decl extends FormDeclaration<any>>(
                             ...(sources as any),
                             DOM: domSource,
                             metadata: allValid$.map((allValid) => ({ valid: allValid })),
-                            state: state.select(key),
+                            state: (field as any).madeByToAnyEffectField
+                                ? { stream: state.stream.map((s) => s[key]) }
+                                : state.select(key),
                             error: errors$.map((errors) => errors[key]),
                             touched: touchedKeys$.map((touchedKeys) => touchedKeys.has(key)),
                         }),
@@ -290,6 +292,8 @@ function toAnyEffectField<Decl extends FieldDeclaration<any, any, {}, {}>>(
     if ((field as any).shouldNotIsolate) {
         (result as any).shouldNotIsolate = (field as any).shouldNotIsolate;
     }
+
+    (result as any).madeByToAnyEffectField = true;
 
     return result;
 }
