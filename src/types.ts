@@ -109,8 +109,8 @@ export type FieldDeclaration<
 > = {
     type: T;
     error: Options['error'];
-    extraSources: ExtraSources;
-    extraSinks: ExtraSinks;
+    extraSources?: ExtraSources;
+    extraSinks?: ExtraSinks;
 };
 
 /**
