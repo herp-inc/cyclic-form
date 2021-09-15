@@ -16,7 +16,7 @@ export type Sources<Decl extends FormDeclaration<any>> = {
     renderer$: MemoryStream<FormRenderer<Decl>>;
     untouch$?: Stream<keyof Decl | null>;
     validators$?: MemoryStream<ValidatorsFor<Decl>>;
-} & OtherSourcesFor<Decl>;
+} & ExtraSourcesFor<Decl>;
 
 /**
  * Sink streams of a form component.
@@ -25,26 +25,26 @@ export type Sinks<Decl extends FormDeclaration<any>> = {
     DOM: MemoryStream<VNode>;
     state: Stream<Endo<Values<Decl>>>;
     submission$: Stream<Event>;
-} & OtherSinksFor<Decl>;
+} & ExtraSinksFor<Decl>;
 
 // form / fields
 
-export type AnyEffectFieldSources<S, OtherSources, Options extends FieldOptions<any> = FieldOptions<string>> = {
+export type AnyEffectFieldSources<S, ExtraSources, Options extends FieldOptions<any> = FieldOptions<string>> = {
     DOM: MainDOMSource;
     metadata: Stream<MetaData>;
     state: StateSource<S>;
     error: Stream<Options['error'] | undefined>;
     touched: Stream<boolean>;
-} & OtherSources;
+} & ExtraSources;
 
-export type AnyEffectFieldSinks<S, OtherSinks> = {
+export type AnyEffectFieldSinks<S, ExtraSinks> = {
     state: Stream<Reducer<S>>;
     DOM: Stream<VNode | null>;
-} & OtherSinks;
+} & ExtraSinks;
 
-export type AnyEffectField<S, OtherSources, OtherSinks, Options extends FieldOptions<any> = FieldOptions<string>> = (
-    sources: AnyEffectFieldSources<S, OtherSources, Options>,
-) => AnyEffectFieldSinks<S, OtherSinks>;
+export type AnyEffectField<S, ExtraSources, ExtraSinks, Options extends FieldOptions<any> = FieldOptions<string>> = (
+    sources: AnyEffectFieldSources<S, ExtraSources, Options>,
+) => AnyEffectFieldSinks<S, ExtraSinks>;
 
 /**
  * A form field consists of an `Intent` and a `View`.
@@ -104,13 +104,13 @@ export type SimpleForm<Form> = { [FieldName in keyof Form]: FieldDeclaration<For
 export type FieldDeclaration<
     T,
     Options extends FieldOptions<any>,
-    OtherSources extends object = {},
-    OtherSinks extends object = {},
+    ExtraSources extends object = {},
+    ExtraSinks extends object = {},
 > = {
     type: T;
     error: Options['error'];
-    otherSources: OtherSources;
-    otherSinks: OtherSinks;
+    extraSources: ExtraSources;
+    extraSinks: ExtraSinks;
 };
 
 /**
@@ -125,10 +125,10 @@ export type FormDeclaration<Values extends any> = {
  */
 export type FieldsFor<Form extends FormDeclaration<any>> = {
     [FieldName in keyof Form]?: {
-        // If not `otherSinks == {} && otherSources == {}`, only `AnyEffectFieldFor`
+        // If not `extraSinks == {} && extraSources == {}`, only `AnyEffectFieldFor`
         0: AnyEffectFieldFor<Form[FieldName]>;
         1: FieldFor<Form[FieldName]> | AnyEffectFieldFor<Form[FieldName]>;
-    }[{} extends Form[FieldName]['otherSinks'] ? ({} extends Form[FieldName]['otherSources'] ? 1 : 0) : 0];
+    }[{} extends Form[FieldName]['extraSinks'] ? ({} extends Form[FieldName]['extraSources'] ? 1 : 0) : 0];
 };
 
 export type FieldFor<Decl extends FieldDeclaration<any, any>> = Field<Decl['type'], FieldOptions<Decl['error']>>;
@@ -139,8 +139,8 @@ export type AnyEffectFieldsFor<Decl extends FormDeclaration<any>> = {
 
 export type AnyEffectFieldFor<Decl extends FieldDeclaration<any, any, any, any>> = AnyEffectField<
     Decl['type'],
-    Decl['otherSources'],
-    Decl['otherSinks'],
+    Decl['extraSources'],
+    Decl['extraSinks'],
     FieldOptions<Decl['error']>
 >;
 
@@ -154,20 +154,20 @@ export type ValidatorsFor<Form extends FormDeclaration<any>> = {
 };
 
 /**
- * OtherSources implementations for the given `FormDeclaration`.
+ * ExtraSources implementations for the given `FormDeclaration`.
  */
-export type OtherSourcesFor<Form extends FormDeclaration<any>> = ValuesIntersection<
+export type ExtraSourcesFor<Form extends FormDeclaration<any>> = ValuesIntersection<
     {
-        [FieldName in keyof Form]: Form[FieldName]['otherSources'];
+        [FieldName in keyof Form]: Form[FieldName]['extraSources'];
     }
 >;
 
 /**
- * OtherSinks implementations for the given `FormDeclaration`.
+ * ExtraSinks implementations for the given `FormDeclaration`.
  */
-export type OtherSinksFor<Form extends FormDeclaration<any>> = ValuesIntersection<
+export type ExtraSinksFor<Form extends FormDeclaration<any>> = ValuesIntersection<
     {
-        [FieldName in keyof Form]: Form[FieldName]['otherSinks'];
+        [FieldName in keyof Form]: Form[FieldName]['extraSinks'];
     }
 >;
 
