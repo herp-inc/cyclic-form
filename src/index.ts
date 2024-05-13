@@ -148,13 +148,6 @@ export function form<Decl extends FormDeclaration<any>>(
             }),
         ).startWith(touchedKeys);
 
-        const { customSubmission } = options;
-        const { fields: submissionFields } = customSubmission;
-        const { predicate } = customSubmission;
-        const customSubmission$ = Stream.merge(
-            ...Array.from(submissionFields).map((key) => isolateSource(DOM, key).events('keydown').filter(predicate)),
-        );
-
         const errors$ = Stream.combine(state.stream, validators$).map(([values, validators]) => {
             return Object.keys(anyEffectFields)
                 .map<[keyof Decl, string | null]>((key: keyof Decl) => {
@@ -178,6 +171,19 @@ export function form<Decl extends FormDeclaration<any>>(
         });
 
         const allValid$ = errors$.map((errors) => Object.values(errors).every((e) => e === null));
+
+        const { customSubmission } = options;
+        const { fields: submissionFields, predicate } = customSubmission;
+        const customSubmission$ = Stream.combine(
+            Stream.merge(
+                ...Array.from(submissionFields).map((key) =>
+                    isolateSource(DOM, key).events('keydown').filter(predicate),
+                ),
+            ),
+            allValid$,
+        )
+            .filter(([_submission, allValid]) => allValid)
+            .map(([submission, _]) => submission);
 
         const fieldInstances = Object.fromEntries(
             Object.keys(anyEffectFields)
