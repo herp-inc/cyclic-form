@@ -1,6 +1,6 @@
 {
   "name": "cyclic-form",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "description": "A form component library built on the top of @cycle/state",
   "main": "index.js",
   "module": "index.mjs",
